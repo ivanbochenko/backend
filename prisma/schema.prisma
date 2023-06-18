@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Event {
-  id        String    @id
+  id        String    @id @default(uuid())
   author_id String
   title     String
   text      String

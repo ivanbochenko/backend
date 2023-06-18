@@ -1,9 +1,9 @@
 import { Elysia, t } from "elysia"
 import { getDistance } from "./distance"
-import { setup } from "."
+import { setdb } from "."
 
 export const queryRoute = (app: Elysia) => app
-  .use(setup)
+  .use(setdb)
   .get(
     '/user/:id',
     async ({ params: { id }, db }) => db.user.findUnique({

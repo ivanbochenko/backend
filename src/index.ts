@@ -1,15 +1,15 @@
-import { Elysia, t } from "elysia"
+import { Elysia, t, ws } from "elysia"
 import { PrismaClient } from '@prisma/client'
 import { jwt } from '@elysiajs/jwt'
 import { queryRoute } from "./queries";
+import { mutationRoute } from "./mutations";
 
 const client = new PrismaClient()
 
-export const setup = (app: Elysia) => app
-  .decorate("db", client)
-  .derive(({ request: { headers } }) => ({
-    authorization: headers.get('Authorization')
-  }))
+export const setdb = (app: Elysia) => app.decorate("db", client)
+
+const app = new Elysia()
+  .get("/", () => "Hello Elysia")
   .use(
     jwt({
       name: 'jwt',
@@ -17,21 +17,30 @@ export const setup = (app: Elysia) => app
       exp: '30d'
     })
   )
-
-const app = new Elysia()
-  .get("/", () => "Hello Elysia")
-  .use(setup)
+  .use(ws())
+  // .ws('/ws', {
+  //   // validate incoming message
+  //   body: t.Object({
+  //     message: t.String()
+  //   }),
+  //   message(ws, { message }) {
+  //     ws.publish('chat_id', {
+  //       message,
+  //       time: Date.now()
+  //     })
+  //   }
+  // })
+  .use(setdb)
   .group('/login', app => app
     // .post('/', async ({jwt}) => jwt.sign({id: '1011'}))
-    .post('/token', async ({jwt, body}) => {
-      const payload = await jwt.verify(body.token)
-      if (!payload) {
-        throw Error('Unauthorized')
-      }
-      const { id } = payload
-      const token = await jwt.sign({id})
-      return { token, id }
-    },
+    .post('/token',
+      async ({jwt, body}) => {
+        const payload = await jwt.verify(body.token)
+        if (!payload) throw Error('Unauthorized')
+        const { id } = payload
+        const token = await jwt.sign({id})
+        return { token, id }
+      },
       {
         body: t.Object({
           token: t.String()
@@ -42,12 +51,13 @@ const app = new Elysia()
     .post('/register', () => 'Registered')
     .post('/restore', () => 'Restored')
   )
-  .derive(async ({ authorization, jwt }) => {
-    const profile = await jwt.verify(authorization!)
+  .derive(async ({ request: { headers }, jwt }) => {
+    const profile = await jwt.verify(headers.get('Authorization') ?? undefined)
     if (!profile) throw Error('Unauthorized')
     return { id: profile.id }
   })
   .use(queryRoute)
+  .use(mutationRoute)
   .listen(3000);
 
 export type App = typeof app
