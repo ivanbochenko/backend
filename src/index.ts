@@ -52,9 +52,10 @@ const app = new Elysia()
     .post('/restore', () => 'Restored')
   )
   .derive(async ({ request: { headers }, jwt }) => {
-    const profile = await jwt.verify(headers.get('Authorization') ?? undefined)
-    if (!profile) throw Error('Unauthorized')
-    return { id: profile.id }
+    const auth = headers.get('Authorization') ?? undefined
+    const payload = await jwt.verify(auth)
+    if (!payload) throw Error('Unauthorized')
+    return { id: payload.id }
   })
   .use(queryRoute)
   .use(mutationRoute)

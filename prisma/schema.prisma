@@ -1,93 +1,95 @@
-generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x"]
-}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Event {
-  id        String    @id @default(uuid())
-  author_id String
-  title     String
-  text      String
-  slots     Int
-  latitude  Float
-  longitude Float
-  photo     String
-  time      DateTime  @default(now())
-  User      User      @relation(fields: [author_id], references: [id], onDelete: Cascade)
-  Match     Match[]
-  Message   Message[]
-  Report    Report[]
-}
-
-model Match {
-  id        String  @id
-  event_id  String
-  accepted  Boolean @default(false)
-  user_id   String
-  dismissed Boolean @default(false)
-  Event     Event   @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  User      User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-}
-
-model Message {
-  id        String   @id
-  text      String
-  time      DateTime @default(now())
-  author_id String
-  event_id  String
-  User      User     @relation(fields: [author_id], references: [id], onDelete: Cascade)
-  Event     Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
-}
-
-model Report {
-  id                          String   @id
-  time                        DateTime @default(now())
-  reason                      String
-  text                        String
-  author_id                   String
-  user_id                     String?
-  event_id                    String?
-  User_Report_author_idToUser User     @relation("Report_author_idToUser", fields: [author_id], references: [id], onDelete: Cascade)
-  Event                       Event?   @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  User_Report_user_idToUser   User?    @relation("Report_user_idToUser", fields: [user_id], references: [id], onDelete: Cascade)
-}
-
-model Review {
-  id                          String   @id
-  time                        DateTime @default(now())
-  text                        String
-  stars                       Int
-  author_id                   String
-  user_id                     String
-  User_Review_author_idToUser User     @relation("Review_author_idToUser", fields: [author_id], references: [id], onDelete: Cascade)
-  User_Review_user_idToUser   User     @relation("Review_user_idToUser", fields: [user_id], references: [id], onDelete: Cascade)
+generator client {
+  provider = "prisma-client-js"
 }
 
 model User {
-  id                            String    @id
-  created_at                    DateTime? @default(now())
-  email                         String?   @unique
-  phone                         String?   @unique
-  name                          String?
-  bio                           String?
-  avatar                        String?
-  age                           Int?
-  sex                           String?
-  stars                         Int?
-  rating                        Int?
-  password                      String?
-  token                         String?
-  blocked                       String[]
-  Event                         Event[]
-  Match                         Match[]
-  Message                       Message[]
-  Report_Report_author_idToUser Report[]  @relation("Report_author_idToUser")
-  Report_Report_user_idToUser   Report[]  @relation("Report_user_idToUser")
-  Review_Review_author_idToUser Review[]  @relation("Review_author_idToUser")
-  Review_Review_user_idToUser   Review[]  @relation("Review_user_idToUser")
+  id              String    @id @default(uuid())
+  created_at      DateTime? @default(now())
+  email           String?   @unique
+  phone           String?   @unique
+  password        String?
+  name            String?
+  bio             String?
+  avatar          String?
+  token           String?
+  age             Int?
+  stars           Int?
+  rating          Int?
+  sex             String?
+  events          Event[]
+  matches         Match[]
+  messages        Message[]
+  blocked         String[]
+  writtenReports  Report[]  @relation("WrittenReports")
+  recievedReports Report[]  @relation("RecievedReports")
+  writtenReviews  Review[]  @relation("WrittenReviews")
+  recievedReviews Review[]  @relation("RecievedReviews")
+}
+
+model Event {
+  id        String    @id @default(uuid())
+  author    User      @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  author_id String
+  photo     String
+  title     String
+  text      String
+  slots     Int
+  time      DateTime  @default(now())
+  latitude  Float
+  longitude Float
+  messages  Message[]
+  matches   Match[]
+  reports   Report[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  time      DateTime @default(now())
+  text      String
+  author    User     @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  author_id String
+  event     Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  event_id  String
+}
+
+model Match {
+  id        String  @id @default(uuid())
+  user      User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id   String
+  event     Event   @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  event_id  String
+  accepted  Boolean @default(false)
+  dismissed Boolean @default(false)
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  time      DateTime @default(now())
+  text      String
+  stars     Int
+  author    User     @relation("WrittenReviews", fields: [author_id], references: [id], onDelete: Cascade)
+  author_id String
+  user      User     @relation("RecievedReviews", fields: [user_id], references: [id], onDelete: Cascade)
+  user_id   String
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  time      DateTime @default(now())
+  reason    String
+  text      String
+  author    User     @relation("WrittenReports", fields: [author_id], references: [id], onDelete: Cascade)
+  author_id String
+  user      User?    @relation("RecievedReports", fields: [user_id], references: [id], onDelete: Cascade)
+  user_id   String?
+  event     Event?   @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  event_id  String?
 }
