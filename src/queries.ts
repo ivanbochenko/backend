@@ -2,6 +2,9 @@ import { Elysia, t } from "elysia"
 import { getDistance } from "./distance"
 import { setdb } from "."
 
+const HOURS_EVENT_LAST = 24
+const bridge = () => new Date(new Date().getTime() - 3600000 * HOURS_EVENT_LAST)
+
 export const queryRoute = (app: Elysia) => app
   .use(setdb)
   .get(
@@ -21,10 +24,10 @@ export const queryRoute = (app: Elysia) => app
     async ({ params: { id }, db }) => db.event.findMany({
       where: { author_id: id },
       include: {
-        User: true,
-        Match: {
+        author: true,
+        matches: {
           where: { accepted: true },
-          include: { User: true }
+          include: { user: true }
         }
       }
     })
@@ -34,7 +37,7 @@ export const queryRoute = (app: Elysia) => app
     async ({ params: { id }, db }) => db.message.findMany({
       where: { event_id: id },
       orderBy: { time: 'asc' },
-      include: { User: true }
+      include: { author: true }
     })
   )
   .get(
@@ -42,7 +45,7 @@ export const queryRoute = (app: Elysia) => app
     async ({ params: { id }, db }) => db.review.findMany({
       where: { user_id: id },
       orderBy: { time: 'asc' },
-      include: { User_Review_author_idToUser: true }
+      include: { author: true }
     })
   )
   .get(
@@ -50,17 +53,17 @@ export const queryRoute = (app: Elysia) => app
     async ({ params: { id }, db }) => db.event.findFirst({
       where: {
         author_id: id,
-        time: { gt: new Date(new Date().setHours(0,0,0,0)) }
+        time: { gt: bridge() }
       },
       include: {
-        User: true,
-        Match: {
+        author: true,
+        matches: {
           where: {
             accepted: false,
             dismissed: false
           },
           include:{
-            User: true
+            user: true
           }
         },
       }
@@ -70,29 +73,27 @@ export const queryRoute = (app: Elysia) => app
     '/feed',
     async ({ body, db }) => {
       const { id, max_distance, latitude, longitude } = body
-      const date = new Date()
-      date.setHours(0,0,0,0)
       const blocked = (await db.user.findUnique({
         where: { id },
         select: { blocked: true }
       }))?.blocked
       const events = await db.event.findMany({
         where: {
-          time: { gte: date },
+          time: { gte: bridge() },
           author_id: { notIn: blocked }
         },
-        orderBy: { User: { rating: 'desc' } },
+        orderBy: { author: { rating: 'desc' } },
         include: {
-          Match: {
+          matches: {
             where: {
               OR: [
                 { accepted: true, },
-                { User: { id } },
+                { user: { id } },
               ],
             },
-            include: { User: true }
+            include: { user: true }
           },
-          User: true
+          author: true
         }
       })
       const feed = events
@@ -102,9 +103,9 @@ export const queryRoute = (app: Elysia) => app
         .filter( e => (
           (e.distance <= max_distance) &&
           (e?.author_id !== id) &&
-          !e?.User.blocked.includes(id) &&
-          (!e?.Match.some(m => m.User?.id === id)) &&
-          (e.Match.length < e.slots)
+          !e?.author.blocked.includes(id) &&
+          (!e?.matches.some(m => m.user?.id === id)) &&
+          (e.matches.length < e.slots)
         ))
       return feed
     },
