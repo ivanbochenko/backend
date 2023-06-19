@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 import handlebars from 'handlebars'
 
-export const sendEmail = (to: string, subject: string, payload: {name: string, password: string}) => {
+export const sendEmail = (to: string, payload: {name: string, password: string}) => {
   const source = `  
     <p>Hi {{name}},</p>
     <p>You requested to reset your password.</p>
@@ -25,7 +25,7 @@ export const sendEmail = (to: string, subject: string, payload: {name: string, p
   const config = {
     from: process.env.EMAIL_USERNAME,
     to,
-    subject,
+    subject: 'Woogie password reset',
     html,
   }
 

@@ -60,7 +60,7 @@ const app = new Elysia()
           throw Error(user ? 'Wrong password' : 'No such user')
         }
         const id = user.id
-        const token = jwt.sign({ id, email })
+        const token = jwt.sign({ id })
         return { token, id }
       },
       {
@@ -88,7 +88,7 @@ const app = new Elysia()
           },
         })
         const id = user.id
-        const token = jwt.sign({ id, email })
+        const token = jwt.sign({ id })
         return { token, id }
       },
       {
@@ -110,8 +110,7 @@ const app = new Elysia()
         if (!updatedUser) {
           throw Error('User does not exist')
         }
-        const subject = 'Woogie password reset'
-        sendEmail(email, subject, {name: updatedUser?.name!, password })
+        sendEmail(email, {name: updatedUser?.name!, password })
         return { message: 'Check email' }
       },
       {
