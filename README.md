@@ -1,6 +1,7 @@
 # Elysia with Bun runtime
 
 ## TODO:
-  mutations
   Websocket
+  file upload
+  password routes
   

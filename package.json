@@ -8,10 +8,12 @@
   "dependencies": {
     "@elysiajs/jwt": "^0.5.3",
     "@prisma/client": "^4.15.0",
+    "bcrypt": "^5.1.0",
     "elysia": "^0.5.18",
     "expo-server-sdk": "^3.7.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
     "bun-types": "latest",
     "prisma": "^4.15.0"
   },

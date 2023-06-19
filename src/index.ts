@@ -1,8 +1,9 @@
 import { Elysia, t, ws } from "elysia"
 import { PrismaClient } from '@prisma/client'
 import { jwt } from '@elysiajs/jwt'
-import { queryRoute } from "./queries";
-import { mutationRoute } from "./mutations";
+import { queryRoute } from "./queries"
+import { mutationRoute } from "./mutations"
+import bcrypt from 'bcrypt'
 
 const client = new PrismaClient()
 
@@ -17,7 +18,7 @@ const app = new Elysia()
       exp: '30d'
     })
   )
-  .use(ws())
+  // .use(ws())
   // .ws('/ws', {
   //   // validate incoming message
   //   body: t.Object({
@@ -47,8 +48,56 @@ const app = new Elysia()
         })
       }
     )
-    .post('/password', () => 'Passed-in')
-    .post('/register', () => 'Registered')
+    .post('/password',
+      async ({ jwt, body: { email, password, pushToken }, db }) => {
+        const user = await db.user.update({
+          where: { email },
+          data: { token: pushToken ?? '' }
+        })
+        const isCorrectPassword = bcrypt.compareSync(password, user?.password!)
+        if (!user || !isCorrectPassword) {
+          throw Error(user ? 'Wrong password' : 'No such user')
+        }
+        const id = user.id
+        const token = jwt.sign({ id, email })
+        return { token, id }
+      },
+      {
+        body: t.Object({
+          email: t.String(),
+          password: t.String(),
+          pushToken: t.String(),
+        })
+      }
+    )
+    .post('/register',
+      async ({body: { email, password, pushToken }, db, jwt }) => {
+        if (!email || !password) {
+          throw Error('Bad request data')
+        }
+        const userCount = await db.user.count({ where: { email } })
+        if (userCount > 0) {
+          throw Error('User already exists')
+        }
+        const user = await db.user.create({
+          data: {
+            email,
+            token: pushToken ?? '',
+            password: bcrypt.hashSync(password, 8)
+          },
+        })
+        const id = user.id
+        const token = jwt.sign({ id, email })
+        return { token, id }
+      },
+      {
+        body: t.Object({
+          email: t.String(),
+          password: t.String(),
+          pushToken: t.String(),
+        })
+      }
+    )
     .post('/restore', () => 'Restored')
   )
   .derive(async ({ request: { headers }, jwt }) => {
