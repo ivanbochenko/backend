@@ -4,6 +4,7 @@ import { jwt } from '@elysiajs/jwt'
 import { queryRoute } from "./queries"
 import { mutationRoute } from "./mutations"
 import bcrypt from 'bcrypt'
+import { sendEmail } from "./mail"
 
 const client = new PrismaClient()
 
@@ -98,7 +99,27 @@ const app = new Elysia()
         })
       }
     )
-    .post('/restore', () => 'Restored')
+    .post('/restore',
+      async ({ body: { email }, db }) => {
+        const str = (Math.random() + 1).toString(36).substring(7)
+        const password = bcrypt.hashSync(str, 8)
+        const updatedUser = await db.user.update({
+          where: { email },
+          data: { password }
+        })
+        if (!updatedUser) {
+          throw Error('User does not exist')
+        }
+        const subject = 'Woogie password reset'
+        sendEmail(email, subject, {name: updatedUser?.name!, password })
+        return { message: 'Check email' }
+      },
+      {
+        body: t.Object({
+          email: t.String()
+        })
+      }
+    )
   )
   .derive(async ({ request: { headers }, jwt }) => {
     const auth = headers.get('Authorization') ?? undefined
