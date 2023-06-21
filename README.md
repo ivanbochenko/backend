@@ -3,5 +3,4 @@
 ## TODO:
   Websocket
   file upload
-  password routes
   

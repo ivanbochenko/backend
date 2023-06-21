@@ -128,6 +128,40 @@ const app = new Elysia()
   })
   .use(queryRoute)
   .use(mutationRoute)
+  .group(
+    '/password', {
+      body: t.Object({
+        password: t.String()
+      })
+    }, 
+    app => app
+      .derive(async ({ body: { password }, id, db }) => {
+        const user = await db.user.findUnique({ where: { id }, select: { password: true} })
+        const isCorrectPassword = bcrypt.compareSync(password, user?.password!)
+        if (!isCorrectPassword) throw Error('Unauthorized')
+      })
+      .post('/reset',
+        async ({body: { newPassword }, db, id}) => {
+          const password = bcrypt.hashSync(newPassword, 8)
+          await db.user.update({
+            where: { id },
+            data: { password }
+          })
+          return { success: true }
+        },
+        {
+          body: t.Object({
+            newPassword: t.String()
+          })
+        }
+      )
+      .post('/user/delete',
+        async ({db, id}) => {
+          await db.user.delete({ where: { id } })
+          return { success: true }
+        }
+      )
+  )
   .listen(3000);
 
 export type App = typeof app
