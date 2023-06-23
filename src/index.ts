@@ -20,17 +20,24 @@ const app = new Elysia()
     })
   )
   // .use(ws())
-  // .ws('/ws', {
-  //   // validate incoming message
+  // .ws('/chat', {
   //   body: t.Object({
-  //     message: t.String()
+  //     message: t.String(),
+  //     time: t.Date()
   //   }),
-  //   message(ws, { message }) {
-  //     ws.publish('chat_id', {
-  //       message,
-  //       time: Date.now()
-  //     })
-  //   }
+  //   open(ws) {
+  //     const msg = `${ws.data.message} has entered the chat`;
+  //     ws.subscribe("the-group-chat");
+  //     ws.publish("the-group-chat", {message: msg, time: new Date()});
+  //   },
+  //   message(ws, message: { message: string, time: Date }) {
+  //     ws.publish('1011', 'hi')
+  //   },
+  //   close(ws) {
+  //     const msg = `${ws.data.message} has left the chat`;
+  //     ws.unsubscribe("the-group-chat");
+  //     ws.publish("the-group-chat", msg);
+  //   },
   // })
   .use(setdb)
   .group('/login', app => app
