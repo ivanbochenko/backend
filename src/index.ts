@@ -1,9 +1,8 @@
-import { Elysia, t, ws } from "elysia"
+import { Elysia, t } from "elysia"
 import { PrismaClient } from '@prisma/client'
 import { jwt } from '@elysiajs/jwt'
 import { queryRoute } from "./queries"
 import { mutationRoute } from "./mutations"
-import bcrypt from 'bcrypt'
 import { sendEmail } from "./mail"
 
 const client = new PrismaClient()
@@ -19,26 +18,6 @@ const app = new Elysia()
       exp: '30d'
     })
   )
-  // .use(ws())
-  // .ws('/chat', {
-  //   body: t.Object({
-  //     message: t.String(),
-  //     time: t.Date()
-  //   }),
-  //   open(ws) {
-  //     const msg = `${ws.data.message} has entered the chat`;
-  //     ws.subscribe("the-group-chat");
-  //     ws.publish("the-group-chat", {message: msg, time: new Date()});
-  //   },
-  //   message(ws, message: { message: string, time: Date }) {
-  //     ws.publish('1011', 'hi')
-  //   },
-  //   close(ws) {
-  //     const msg = `${ws.data.message} has left the chat`;
-  //     ws.unsubscribe("the-group-chat");
-  //     ws.publish("the-group-chat", msg);
-  //   },
-  // })
   .use(setdb)
   .group('/login', app => app
     // .post('/', async ({jwt}) => jwt.sign({id: '1011'}))
@@ -62,7 +41,7 @@ const app = new Elysia()
           where: { email },
           data: { token: pushToken ?? '' }
         })
-        const isCorrectPassword = bcrypt.compareSync(password, user?.password!)
+        const isCorrectPassword = await Bun.password.verify(password, user?.password!)
         if (!user || !isCorrectPassword) {
           throw Error(user ? 'Wrong password' : 'No such user')
         }
@@ -87,11 +66,12 @@ const app = new Elysia()
         if (userCount > 0) {
           throw Error('User already exists')
         }
+        const hash = await Bun.password.hash(password)
         const user = await db.user.create({
           data: {
             email,
             token: pushToken ?? '',
-            password: bcrypt.hashSync(password, 8)
+            password: hash
           },
         })
         const id = user.id
@@ -109,7 +89,7 @@ const app = new Elysia()
     .post('/restore',
       async ({ body: { email }, db }) => {
         const str = (Math.random() + 1).toString(36).substring(7)
-        const password = bcrypt.hashSync(str, 8)
+        const password = await Bun.password.hash(str)
         const updatedUser = await db.user.update({
           where: { email },
           data: { password }
@@ -144,12 +124,12 @@ const app = new Elysia()
     app => app
       .derive(async ({ body: { password }, id, db }) => {
         const user = await db.user.findUnique({ where: { id }, select: { password: true} })
-        const isCorrectPassword = bcrypt.compareSync(password, user?.password!)
+        const isCorrectPassword = await Bun.password.verify(password, user?.password!)
         if (!isCorrectPassword) throw Error('Unauthorized')
       })
       .post('/reset',
         async ({body: { newPassword }, db, id}) => {
-          const password = bcrypt.hashSync(newPassword, 8)
+          const password = await Bun.password.hash(newPassword)
           await db.user.update({
             where: { id },
             data: { password }
