@@ -1,9 +1,6 @@
 import { Elysia, t } from "elysia"
-import { getDistance } from "./distance"
+import { getDistance, dateShiftHours } from "./calc"
 import { setdb } from "."
-
-const HOURS_EVENT_LAST = 24
-const bridge = () => new Date(new Date().getTime() - 3600000 * HOURS_EVENT_LAST)
 
 export const queryRoute = (app: Elysia) => app
   .use(setdb)
@@ -53,7 +50,7 @@ export const queryRoute = (app: Elysia) => app
     async ({ params: { id }, db }) => db.event.findFirst({
       where: {
         author_id: id,
-        time: { gt: bridge() }
+        time: { gt: dateShiftHours(new Date(), -24) }
       },
       include: {
         author: true,
@@ -79,7 +76,7 @@ export const queryRoute = (app: Elysia) => app
       }))?.blocked
       const events = await db.event.findMany({
         where: {
-          time: { gte: bridge() },
+          time: { gte: dateShiftHours(new Date(), -24) },
           author_id: { notIn: blocked }
         },
         orderBy: { author: { rating: 'desc' } },

@@ -1,12 +1,16 @@
 import { Elysia, t } from "elysia"
 import { setdb } from "."
 import { sendPushNotifications } from "./notifications"
+import { dateShiftHours } from "./calc"
 
 export const mutationRoute = (app: Elysia) => app
   .use(setdb)
   .post(
     '/event/create',
-    async ({ body, db }) => db.event.create({ data: body }),
+    async ({ body, db }) => {
+      const shiftedTime = body.time >= dateShiftHours(new Date(), -0.5) ? body.time : dateShiftHours(body.time, 24)
+      db.event.create({ data: {...body, time: shiftedTime} })
+    },
     {
       body: t.Object({
         author_id: t.String(),
