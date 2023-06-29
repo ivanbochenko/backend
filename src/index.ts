@@ -36,8 +36,6 @@ export const auth = async (app: Elysia) => app
     return { id: payload.id }
   })
 
-// const upload = async (file: Blob, id: string) => 
-
 const app = new Elysia()
   .get("/", () => "Hello Elysia")
   .use(setdb)

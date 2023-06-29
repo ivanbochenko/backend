@@ -12,4 +12,4 @@ export function getDistance(lat1: number, lon1: number, lat2: number, lon2: numb
   return Math.round(R * c) // Distance in km
 }
 
-export const dateShiftHours = (d: Date, h: number) => new Date(d.getTime() + 3600000 * h)
+export const dateShiftHours = (d: Date, h: number) => new Date(d.getTime() + 1000 * 60 * 60 * h)

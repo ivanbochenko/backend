@@ -9,7 +9,7 @@ export const mutationRoute = (app: Elysia) => app
     '/event/create',
     async ({ body, db }) => {
       const shiftedTime = body.time >= dateShiftHours(new Date(), -0.5) ? body.time : dateShiftHours(body.time, 24)
-      db.event.create({ data: {...body, time: shiftedTime} })
+      return await db.event.create({ data: {...body, time: shiftedTime} })
     },
     {
       body: t.Object({
