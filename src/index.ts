@@ -10,8 +10,10 @@ import { passwordRoute } from "./password";
 
 const client = new PrismaClient()
 
+const region = process.env.AWS_REGION
+
 const s3 = new S3Client({
-  region: "eu-central-1",
+  region,
   logger: console,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
@@ -58,7 +60,7 @@ const app = new Elysia()
         ContentType: file.type,
       })
       await s3.send(command)
-      return process.env.AWS_S3_LINK! + '/' + Key
+      return `https://${Bucket}.s3.${region}.amazonaws.com/${Key}`
     },
     {
       body: t.Object({
