@@ -1,6 +1,5 @@
 # Elysia with Bun runtime
 
 ## TODO:
-  Websocket
-  file upload
+  Websocket working or some kind of subscription
   

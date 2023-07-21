@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia"
+import { Elysia, t, ws } from "elysia"
 import { PrismaClient } from '@prisma/client'
 import { jwt } from '@elysiajs/jwt'
 import { v4 as uuid } from "uuid";
@@ -39,12 +39,23 @@ export const auth = async (app: Elysia) => app
 
 const app = new Elysia()
   .get("/", () => "Hello Elysia")
-  .use(setdb)
   .use(loginRoute)
   .use(passwordRoute)
   .use(auth)
   .use(queryRoute)
   .use(mutationRoute)
+  .use(ws())
+  .ws('/ws', {
+    // body: t.Object({
+    //   message: t.String()
+    // }),
+    message(ws, message) {
+      ws.send({
+        message,
+        time: Date.now()
+      })
+    }
+  })
 	.post('/photo',
     async ({ body: { file }, id }) => {
       const Bucket = "onlyfriends-bucket"

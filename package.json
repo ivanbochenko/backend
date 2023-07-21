@@ -9,7 +9,7 @@
     "@aws-sdk/client-s3": "^3.360.0",
     "@elysiajs/jwt": "^0.5.3",
     "@prisma/client": "^4.15.0",
-    "elysia": "^0.5.20",
+    "elysia": "^0.5.23",
     "expo-server-sdk": "^3.7.0",
     "handlebars": "^4.7.7",
     "nodemailer": "^6.9.3",
