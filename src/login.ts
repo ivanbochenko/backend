@@ -74,9 +74,10 @@ export const loginRoute = (app: Elysia) => app
     .post('/restore',
       async ({ body: { email }, db }) => {
         const password = (Math.random() + 1).toString(36).substring(7)
+        const hash = await Bun.password.hash(password)
         const updatedUser = await db.user.update({
           where: { email },
-          data: { password: await Bun.password.hash(password) }
+          data: { password: hash }
         })
         if (!updatedUser) {
           throw Error('User does not exist')
