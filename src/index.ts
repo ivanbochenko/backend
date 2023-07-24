@@ -45,15 +45,15 @@ const app = new Elysia()
   .use(queryRoute)
   .use(mutationRoute)
   .use(ws())
-  .ws('/ws', {
-    // body: t.Object({
-    //   message: t.String()
-    // }),
-    message(ws, message) {
+  .ws('/chat', {
+    body: t.Object({
+      message: t.String()
+    }),
+    message(ws, { message }) {
       ws.send({
         message,
         time: Date.now()
-      })
+      } as unknown as undefined)
     }
   })
 	.post('/photo',

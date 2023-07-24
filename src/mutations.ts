@@ -26,10 +26,22 @@ export const mutationRoute = (app: Elysia) => app
   )
   .post(
     '/event/delete',
-    async ({ body: { id }, db }) => db.event.delete({ where: { id } }),
+    async ({ body, db }) => db.event.delete({ where: body }),
     {
       body: t.Object({
         id: t.String()
+      })
+    }
+  )
+  .post(
+    '/event/report',
+    async ({ body, db }) => db.report.create({ data: body }),
+    {
+      body: t.Object({
+        author_id: t.String(),
+        event_id: t.String(),
+        reason: t.String(),
+        text: t.String(),
       })
     }
   )
@@ -64,6 +76,18 @@ export const mutationRoute = (app: Elysia) => app
       body: t.Object({
         id: t.String(),
         user_id: t.String(),
+      })
+    }
+  )
+  .post(
+    '/user/report',
+    async ({ body, db }) => db.report.create({ data: body }),
+    {
+      body: t.Object({
+        author_id: t.String(),
+        user_id: t.String(),
+        reason: t.String(),
+        text: t.String(),
       })
     }
   )
