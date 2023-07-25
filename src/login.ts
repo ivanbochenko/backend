@@ -19,7 +19,8 @@ export const loginRoute = (app: Elysia) => app
         const payload = await jwt.verify(body.token)
         if (!payload) throw Error('Unauthorized')
         const { id } = payload
-        return { token: await jwt.sign({id}), id }
+        const newToken = await jwt.sign({id})
+        return { token: newToken, id }
       },
       {
         body: t.Object({

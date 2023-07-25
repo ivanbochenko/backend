@@ -45,16 +45,23 @@ const app = new Elysia()
   .use(queryRoute)
   .use(mutationRoute)
   .use(ws())
-  .ws('/chat', {
-    body: t.Object({
-      message: t.String()
-    }),
-    message(ws, { message }) {
-      ws.send({
-        message,
-        time: Date.now()
-      } as unknown as undefined)
-    }
+  .ws('/chat/:event_id/:user_id', {
+    open(ws) {
+      const { event_id } = ws.data.params
+      ws.subscribe(event_id!)
+    },
+    message(ws, message) {
+      const myMessage = {
+        ...message as any,
+        time: new Date(),
+        user_id: ws.data.params.user_id
+      }
+      ws.publish(ws.data.params.event_id, myMessage)
+    },
+    close(ws) {
+      
+      ws.unsubscribe(ws.data.params.event_id)
+    },
   })
 	.post('/photo',
     async ({ body: { file }, id }) => {
