@@ -34,7 +34,20 @@ export const sendPushNotifications = async (pushTokens: (string | null)[], messa
   })();
 }
 
-export const notifyUsersInChat = async (event_id: string, message: any) => {
+type Message = {
+  text: string,
+  time: Date,
+  author_id: string,
+  event_id: string,
+  author: {
+    id: string,
+    name: string | null,
+    token: string | null,
+    avatar: string | null
+  }
+}
+
+export const notifyUsersInChat = async (event_id: string, message: Message) => {
   const matches = await dbClient.match.findMany({
     where: {
       event_id
@@ -61,7 +74,7 @@ export const notifyUsersInChat = async (event_id: string, message: any) => {
     await sendPushNotifications(tokens, {
       to: '',
       sound: 'default',
-      title: message.author.name,
+      title: message.author.name ?? '',
       body: message.text,
     })
   }
