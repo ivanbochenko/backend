@@ -53,7 +53,6 @@ const app = new Elysia()
     },
     async message(ws, message) {
       const { event_id, user_id } = ws.data.params
-      // const myMessage = message as any
       const newMessage = await dbClient.message.create({
         data: {
           text: message as string,
