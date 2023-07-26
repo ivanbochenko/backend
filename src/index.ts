@@ -7,8 +7,9 @@ import { queryRoute } from "./queries"
 import { mutationRoute } from "./mutations"
 import { loginRoute } from "./login"
 import { passwordRoute } from "./password";
+import { notifyUsersInChat } from "./notifications";
 
-const client = new PrismaClient()
+export const dbClient = new PrismaClient()
 
 const region = process.env.AWS_REGION
 
@@ -20,7 +21,7 @@ const s3 = new S3Client({
   }
 })
 
-export const setdb = (app: Elysia) => app.decorate("db", client)
+export const setdb = (app: Elysia) => app.decorate("db", dbClient)
 
 export const auth = async (app: Elysia) => app
   .use(
@@ -44,22 +45,36 @@ const app = new Elysia()
   .use(auth)
   .use(queryRoute)
   .use(mutationRoute)
+  .use(setdb)
   .use(ws())
   .ws('/chat/:event_id/:user_id', {
     open(ws) {
-      const { event_id } = ws.data.params
-      ws.subscribe(event_id!)
+      ws.subscribe(ws.data.params.event_id)
     },
-    message(ws, message) {
-      const myMessage = {
-        ...message as any,
-        time: new Date(),
-        user_id: ws.data.params.user_id
-      }
-      ws.publish(ws.data.params.event_id, myMessage)
+    async message(ws, message) {
+      const { event_id, user_id } = ws.data.params
+      // const myMessage = message as any
+      const newMessage = await dbClient.message.create({
+        data: {
+          text: message as string,
+          author_id: user_id,
+          event_id,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              token: true
+            }
+          }
+        }
+      })
+      ws.publish(event_id, newMessage)
+      notifyUsersInChat(event_id, newMessage)
     },
     close(ws) {
-      
       ws.unsubscribe(ws.data.params.event_id)
     },
   })
