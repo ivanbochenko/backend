@@ -67,10 +67,8 @@ export const notifyUsersInChat = async (event_id: string, message: Message) => {
       }
     }
   })
-  // Get tokens
-  const tokens = matches.map(m => m.user.token)
-  // Include event author
-  tokens.push(matches[0].event.author.token)
+  // Get tokens, include event author
+  const tokens = [...matches.map(m => m.user.token), matches[0].event.author.token]
   // Exclude message author
   const index = tokens.indexOf(message.author.token)
   if (index > -1) {
