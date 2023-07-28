@@ -28,7 +28,7 @@ export const subscriptionRoute = (app: Elysia) => app
         }
       })
       ws.publish(event_id, newMessage)
-      notifyUsersInChat(event_id, newMessage)
+      await notifyUsersInChat(event_id, newMessage)
     },
     close(ws) {
       ws.unsubscribe(ws.data.params.event_id)
