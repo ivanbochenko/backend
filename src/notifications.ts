@@ -49,21 +49,28 @@ type Message = {
 
 export const notifyUsersInChat = async (event_id: string, message: Message) => {
   const matches = await dbClient.match.findMany({
-    where: {
-      event_id
-    },
-    include: {
-      user: true,
+    where: { event_id, accepted: true },
+    select: {
+      user: {
+        select: {
+          token: true
+        }
+      },
+      event: {
+        select: {
+          author: {
+            select: {
+              token: true
+            }
+          }
+        }
+      }
     }
   })
   // Get tokens
   const tokens = matches.map(m => m.user.token)
   // Include event author
-  const event = await dbClient.event.findUnique({
-    where: { id: event_id },
-    include: { author: true }
-  })
-  tokens.push(event!.author.token)
+  tokens.push(matches[0].event.author.token)
   // Exclude message author
   const index = tokens.indexOf(message.author.token)
   if (index > -1) {
