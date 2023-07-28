@@ -1,5 +1,5 @@
 {
-  "name": "elysia-prisma",
+  "name": "backend",
   "version": "1.0.40",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,7 +9,7 @@
     "@aws-sdk/client-s3": "^3.360.0",
     "@elysiajs/jwt": "^0.5.3",
     "@prisma/client": "^4.15.0",
-    "elysia": "^0.5.24",
+    "elysia": "^0.5.25",
     "expo-server-sdk": "^3.7.0",
     "handlebars": "^4.7.7",
     "nodemailer": "^6.9.3",
