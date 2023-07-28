@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia"
+import { Elysia } from "elysia"
 import { PrismaClient } from '@prisma/client'
 import { jwt } from '@elysiajs/jwt'
 import { queryRoute } from "./queries"
