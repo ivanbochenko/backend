@@ -4,9 +4,9 @@
 ARG BUN_VERSION=0.7.3
 FROM oven/bun:${BUN_VERSION} as base
 
-LABEL fly_launch_runtime="Node.js/Prisma"
+LABEL fly_launch_runtime="Bun/Prisma"
 
-# Node.js/Prisma app lives here
+# Bun/Prisma app lives here
 WORKDIR /app
 
 # Set production environment
@@ -22,7 +22,7 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY --link bun.lockb package.json ./
-RUN bun install
+RUN bun install --ci
 
 # Generate Prisma Client
 COPY --link prisma .

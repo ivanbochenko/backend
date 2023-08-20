@@ -36,7 +36,7 @@ const app = new Elysia()
   .use(queryRoute)
   .use(mutationRoute)
   .use(subscriptionRoute)
-  .listen(process.env.PORT || "3000");
+  .listen(3000)
 
 export type App = typeof app
 
