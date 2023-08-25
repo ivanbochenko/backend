@@ -13,7 +13,7 @@ export const loginRoute = (app: Elysia) => app
     })
   )
   .group('/login', app => app
-    .post('/', async ({jwt}) => jwt.sign({id: '1011'}))
+    // .post('/', async ({jwt}) => jwt.sign({id: '1011'}))
     .post('/token',
       async ({jwt, body}) => {
         const payload = await jwt.verify(body.token)
