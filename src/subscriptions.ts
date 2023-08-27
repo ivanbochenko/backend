@@ -2,7 +2,7 @@ import { Elysia, ws } from "elysia"
 import { dbClient } from "."
 import { notifyUsersInChat } from "./notifications"
 
-export const subscriptionRoute = (app: Elysia) => app
+export const subscriptionRoute = new Elysia()
   .use(ws())
   .ws('/chat/:event_id/:author_id', {
     open(ws) {

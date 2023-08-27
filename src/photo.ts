@@ -13,7 +13,7 @@ const s3 = new S3Client({
   }
 })
 
-export const photoRoute = (app: Elysia) => app
+export const photoRoute = new Elysia()
   .use(auth)
   .post('/photo',
     async ({ body: { file }, id }) => {

@@ -3,7 +3,7 @@ import { jwt } from '@elysiajs/jwt'
 import { sendEmail } from "./mail"
 import { setdb } from "."
 
-export const loginRoute = (app: Elysia) => app
+export const loginRoute = new Elysia()
   .use(setdb)
   .use(
     jwt({

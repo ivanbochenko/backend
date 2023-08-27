@@ -3,7 +3,7 @@ import { setdb } from "."
 import { sendPushNotifications } from "./notifications"
 import { dateShiftHours } from "./calc"
 
-export const mutationRoute = (app: Elysia) => app
+export const mutationRoute = new Elysia()
   .use(setdb)
   .post(
     '/event/create',

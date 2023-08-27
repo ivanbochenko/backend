@@ -10,9 +10,9 @@ import { photoRoute } from "./photo"
 
 export const dbClient = new PrismaClient()
 
-export const setdb = (app: Elysia) => app.decorate("db", dbClient)
+export const setdb = new Elysia().decorate("db", dbClient)
 
-export const auth = async (app: Elysia) => app
+export const auth = new Elysia()
   .use(
     jwt({
       name: 'jwt',

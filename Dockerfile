@@ -1,8 +1,7 @@
 # syntax = docker/dockerfile:1
 
 # Adjust BUN_VERSION as desired
-ARG BUN_VERSION=0.8.1
-FROM oven/bun:${BUN_VERSION} as base
+FROM oven/bun:latest as base
 
 LABEL fly_launch_runtime="Bun/Prisma"
 
@@ -26,7 +25,11 @@ RUN bun install --ci
 
 # Generate Prisma Client
 COPY --link prisma .
+COPY --from=deps /app/node_modules ./node_modules
+COPY prisma ./prisma
 RUN bunx prisma generate
+RUN bunx prisma db pull
+
 
 # Copy application code
 COPY --link . .

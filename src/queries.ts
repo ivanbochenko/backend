@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia"
 import { getDistance, dateShiftHours } from "./calc"
 import { setdb } from "."
 
-export const queryRoute = (app: Elysia) => app
+export const queryRoute = new Elysia()
   .use(setdb)
   .get(
     '/user/:id',
