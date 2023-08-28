@@ -25,7 +25,7 @@ RUN bun install --ci
 
 # Generate Prisma Client
 COPY --link prisma .
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY prisma ./prisma
 RUN bunx prisma generate
 RUN bunx prisma db pull
