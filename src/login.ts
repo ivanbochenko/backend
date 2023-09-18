@@ -4,7 +4,6 @@ import { sendEmail } from "./mail"
 import { setdb } from "."
 
 export const loginRoute = new Elysia({prefix: '/login'})
-  .use(setdb)
   .use(
     jwt({
       name: 'jwt',
@@ -12,6 +11,7 @@ export const loginRoute = new Elysia({prefix: '/login'})
       exp: '30d'
     })
   )
+  .use(setdb)
   // .post('/', async ({jwt}) => jwt.sign({id: '1011'}))
   .post('/token',
     async ({jwt, body}) => {

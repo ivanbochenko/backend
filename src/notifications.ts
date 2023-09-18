@@ -1,5 +1,6 @@
 import { Expo, ExpoPushMessage } from 'expo-server-sdk'
 import { dbClient } from './index'
+
 const expo = new Expo()
 
 export const sendPushNotifications = async (pushTokens: (string | null)[], message: ExpoPushMessage) => {

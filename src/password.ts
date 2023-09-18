@@ -10,10 +10,11 @@ export const passwordRoute = new Elysia({ prefix: '/password' })
       if (!hash) throw Error('No such user')
       const isCorrectPassword = await Bun.password.verify(password, hash)
       if (!isCorrectPassword) throw Error('Unauthorized')
+      const newHash = await Bun.password.hash(newPassword)
 
       return await db.user.update({
         where: { id },
-        data: { password: await Bun.password.hash(newPassword) }
+        data: { password: newHash }
       })
     },
     {
@@ -27,8 +28,7 @@ export const passwordRoute = new Elysia({ prefix: '/password' })
     async ({body: { password }, db, id}) => {
       const hash = (await db.user.findUnique({ where: { id }, select: { password: true} }))?.password
       if (!hash) throw Error('No such user')
-      const isCorrectPassword = await Bun.password.verify(password, hash)
-      if (!isCorrectPassword) throw Error('Unauthorized')
+      if (!await Bun.password.verify(password, hash)) throw Error('Unauthorized')
 
       return await db.user.delete({ where: { id } })
     },
