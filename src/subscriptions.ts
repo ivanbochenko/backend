@@ -1,21 +1,23 @@
-import { Elysia, ws } from "elysia"
+import { Elysia, t } from "elysia"
 import { dbClient } from "."
 import { notifyUsersInChat } from "./notifications"
 
 export const subscriptionRoute = new Elysia()
-  .use(ws())
   .ws('/chat/:event_id/:author_id', {
+    params: t.Object({
+      event_id: t.String()
+    }),
+    body: t.Object({
+      text: t.String(),
+      author_id: t.String(),
+      event_id: t.String(),
+    }),
     open(ws) {
       ws.subscribe(ws.data.params.event_id)
     },
     async message(ws, message) {
-      const { event_id, author_id } = ws.data.params
       const newMessage = await dbClient.message.create({
-        data: {
-          text: message as string,
-          author_id,
-          event_id,
-        },
+        data: message,
         include: {
           author: {
             select: {
@@ -27,8 +29,8 @@ export const subscriptionRoute = new Elysia()
           }
         }
       })
-      ws.publish(event_id, newMessage)
-      await notifyUsersInChat(event_id, newMessage)
+      ws.publish(message.event_id, newMessage)
+      await notifyUsersInChat(message.event_id, newMessage)
     },
     close(ws) {
       ws.unsubscribe(ws.data.params.event_id)
