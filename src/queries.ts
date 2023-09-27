@@ -1,9 +1,9 @@
 import { Elysia, t } from "elysia"
 import { getDistance, dateShiftHours } from "./calc"
-import { setdb } from "."
+import { dbClient } from "."
 
 export const queryRoute = new Elysia()
-  .use(setdb)
+  .decorate("db", dbClient)
   .get(
     '/user/:id',
     async ({ params: { id }, db }) => db.user.findUnique({

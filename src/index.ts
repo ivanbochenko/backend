@@ -1,5 +1,5 @@
 import { Elysia } from "elysia"
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '../prisma/client'
 import { jwt } from '@elysiajs/jwt'
 import { queryRoute } from "./queries"
 import { mutationRoute } from "./mutations"
@@ -9,8 +9,6 @@ import { subscriptionRoute } from "./subscriptions";
 import { photoRoute } from "./photo"
 
 export const dbClient = new PrismaClient()
-
-export const setdb = new Elysia().decorate("db", dbClient)
 
 export const auth = new Elysia()
   .use(

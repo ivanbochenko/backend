@@ -1,10 +1,10 @@
 import { Elysia, t } from "elysia"
-import { setdb } from "."
+import { dbClient } from "."
 import { sendPushNotifications } from "./notifications"
 import { dateShiftHours } from "./calc"
 
 export const mutationRoute = new Elysia()
-  .use(setdb)
+  .decorate("db", dbClient)
   .post(
     '/event/create',
     async ({ body, db }) => {
