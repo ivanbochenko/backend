@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia"
 import { jwt } from '@elysiajs/jwt'
 import { sendEmail } from "./mail"
-import { dbClient } from "."
+import { db } from "./dataBaseClient"
 
 export const loginRoute = new Elysia({prefix: '/login'})
   .use(
@@ -11,7 +11,7 @@ export const loginRoute = new Elysia({prefix: '/login'})
       exp: '30d'
     })
   )
-  .decorate("db", dbClient)
+  .decorate("db", db)
   // .post('/', async ({jwt}) => jwt.sign({id: '1011'}))
   .post('/token',
     async ({jwt, body}) => {

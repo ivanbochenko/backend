@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia"
-import { dbClient } from "."
+import { db } from "./dataBaseClient"
 import { notifyUsersInChat } from "./notifications"
 
 export const subscriptionRoute = new Elysia()
@@ -15,7 +15,7 @@ export const subscriptionRoute = new Elysia()
       ws.subscribe(ws.data.params.event_id)
     },
     async message(ws, message) {
-      const newMessage = await dbClient.message.create({
+      const newMessage = await db.message.create({
         data: { ...message, event_id: ws.data.params.event_id },
         include: {
           author: {

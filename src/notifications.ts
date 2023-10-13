@@ -1,5 +1,5 @@
 import { Expo, ExpoPushMessage } from 'expo-server-sdk'
-import { dbClient } from './index'
+import { db } from './dataBaseClient'
 
 const expo = new Expo()
 
@@ -49,7 +49,7 @@ type Message = {
 }
 
 export const notifyUsersInChat = async (event_id: string, message: Message) => {
-  const matches = await dbClient.match.findMany({
+  const matches = await db.match.findMany({
     where: { event_id, accepted: true },
     select: {
       user: {

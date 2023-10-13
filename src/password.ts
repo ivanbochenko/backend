@@ -1,8 +1,9 @@
 import { Elysia, t } from "elysia"
-import { auth, dbClient } from "."
+import { auth } from "."
+import { db } from "./dataBaseClient"
 
 export const passwordRoute = new Elysia({ prefix: '/password' })
-  .decorate("db", dbClient)
+  .decorate("db", db)
   .use(auth)
   .post('/reset',
     async ({body: { password, newPassword }, db, id}) => {
