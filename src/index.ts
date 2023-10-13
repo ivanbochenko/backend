@@ -7,7 +7,9 @@ import { subscriptionRoute } from "./subscriptions";
 import { photoRoute } from "./photo"
 import { db } from "./dataBaseClient"
 
-const auth = new Elysia()
+const app = new Elysia()
+  .get("/", () => "Hello 😜")
+  .use(loginRoute)
   .use(
     jwt({
       name: 'jwt',
@@ -21,11 +23,6 @@ const auth = new Elysia()
     if (!payload) throw Error('Unauthorized')
     return { id: payload.id }
   })
-
-const app = new Elysia()
-  .get("/", () => "Hello 😜")
-  .use(loginRoute)
-  .use(auth)
   .post('/password/reset',
     async ({body: { password, newPassword }, id}) => {
       const hash = (await db.user.findUnique({ where: { id }, select: { password: true} }))?.password
