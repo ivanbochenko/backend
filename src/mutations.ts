@@ -4,10 +4,9 @@ import { sendPushNotifications } from "./notifications"
 import { dateShiftHours } from "./calc"
 
 export const mutationRoute = new Elysia()
-  .decorate("db", db)
   .post(
     '/event/create',
-    async ({ body, db }) => {
+    async ({ body }) => {
       const shiftedTime = body.time >= dateShiftHours(new Date(), -0.5) ? body.time : dateShiftHours(body.time, 24)
       return await db.event.create({ data: {...body, time: shiftedTime} })
     },
@@ -26,7 +25,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/event/delete',
-    async ({ body, db }) => db.event.delete({ where: body }),
+    async ({ body }) => db.event.delete({ where: body }),
     {
       body: t.Object({
         id: t.String()
@@ -35,7 +34,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/event/report',
-    async ({ body, db }) => db.report.create({ data: body }),
+    async ({ body }) => db.report.create({ data: body }),
     {
       body: t.Object({
         author_id: t.String(),
@@ -47,7 +46,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/user/update',
-    async ({ body, db }) => db.user.update({
+    async ({ body }) => db.user.update({
       where: { id: body.id },
       data: body
     }),
@@ -64,7 +63,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/user/block',
-    async ({ body: { id, user_id }, db }) => db.user.update({
+    async ({ body: { id, user_id } }) => db.user.update({
       where: { id },
       data: {
         blocked: {
@@ -81,7 +80,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/user/report',
-    async ({ body, db }) => db.report.create({ data: body }),
+    async ({ body }) => db.report.create({ data: body }),
     {
       body: t.Object({
         author_id: t.String(),
@@ -93,7 +92,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/review',
-    async ({ body, db }) => {
+    async ({ body }) => {
       const { text, stars, author_id, user_id } = body
       const prevReview = (await db.review.findMany({
         where: { user_id, author_id }
@@ -134,7 +133,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/match/create',
-    async ({ body: { user_id, event_id, dismissed }, db }) => {
+    async ({ body: { user_id, event_id, dismissed } }) => {
       const match = await db.match.create({
         data: {
           user_id,
@@ -170,7 +169,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/match/accept',
-    async ({ body: { id }, db }) => {
+    async ({ body: { id } }) => {
       const match = await db.match.update({
         where: { id },
         data: { accepted: true },
@@ -195,7 +194,7 @@ export const mutationRoute = new Elysia()
   )
   .post(
     '/match/delete',
-    async ({ body, db }) => db.match.delete({ where: body }),
+    async ({ body }) => db.match.delete({ where: body }),
     {
       body: t.Object({
         id: t.String(),

@@ -3,22 +3,21 @@ import { getDistance, dateShiftHours } from "./calc"
 import { db } from "./dataBaseClient"
 
 export const queryRoute = new Elysia()
-  .decorate("db", db)
   .get(
     '/user/:id',
-    async ({ params: { id }, db }) => db.user.findUnique({
+    async ({ params: { id } }) => db.user.findUnique({
       where: { id }
     })
   )
   .get(
     '/event/:id',
-    async ({ params: { id }, db }) => db.event.findUnique({
+    async ({ params: { id } }) => db.event.findUnique({
       where: { id }
     })
   )
   .get(
     '/events/:id',
-    async ({ params: { id }, db }) => db.event.findMany({
+    async ({ params: { id } }) => db.event.findMany({
       where: { author_id: id },
       include: {
         author: true,
@@ -31,7 +30,7 @@ export const queryRoute = new Elysia()
   )
   .get(
     '/messages/:id',
-    async ({ params: { id }, db }) => db.message.findMany({
+    async ({ params: { id } }) => db.message.findMany({
       where: { event_id: id },
       orderBy: { time: 'asc' },
       include: { author: true }
@@ -39,7 +38,7 @@ export const queryRoute = new Elysia()
   )
   .get(
     '/reviews/:id',
-    async ({ params: { id }, db }) => db.review.findMany({
+    async ({ params: { id } }) => db.review.findMany({
       where: { user_id: id },
       orderBy: { time: 'asc' },
       include: { author: true }
@@ -47,7 +46,7 @@ export const queryRoute = new Elysia()
   )
   .get(
     '/last_event/:id',
-    async ({ params: { id }, db }) => db.event.findFirst({
+    async ({ params: { id } }) => db.event.findFirst({
       where: {
         author_id: id,
         time: { gt: dateShiftHours(new Date(), -24) }
@@ -68,7 +67,7 @@ export const queryRoute = new Elysia()
   )
   .post(
     '/feed',
-    async ({ body, db }) => {
+    async ({ body }) => {
       const { id, max_distance, latitude, longitude } = body
       const blocked = (await db.user.findUnique({
         where: { id },

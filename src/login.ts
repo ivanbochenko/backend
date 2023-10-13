@@ -11,7 +11,6 @@ export const loginRoute = new Elysia({prefix: '/login'})
       exp: '30d'
     })
   )
-  .decorate("db", db)
   // .post('/', async ({jwt}) => jwt.sign({id: '1011'}))
   .post('/token',
     async ({jwt, body}) => {
@@ -28,7 +27,7 @@ export const loginRoute = new Elysia({prefix: '/login'})
     }
   )
   .post('/password',
-    async ({ jwt, body: { email, password, pushToken }, db }) => {
+    async ({ jwt, body: { email, password, pushToken } }) => {
       const user = await db.user.update({
         where: { email },
         data: { token: pushToken }
@@ -50,7 +49,7 @@ export const loginRoute = new Elysia({prefix: '/login'})
     }
   )
   .post('/register',
-    async ({body: { email, password, pushToken }, db, jwt }) => {
+    async ({body: { email, password, pushToken }, jwt }) => {
       if (await db.user.count({ where: { email } }) > 0) {
         throw Error('User already exists')
       }
@@ -72,7 +71,7 @@ export const loginRoute = new Elysia({prefix: '/login'})
     }
   )
   .post('/restore',
-    async ({ body: { email }, db }) => {
+    async ({ body: { email } }) => {
       const password = (Math.random() + 1).toString(36).substring(7)
       const hash = await Bun.password.hash(password)
       const updatedUser = await db.user.update({
