@@ -6,13 +6,23 @@ export const queryRoute = new Elysia()
   .get(
     '/user/:id',
     async ({ params: { id } }) => db.user.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        recievedReviews: true
+      }
     })
   )
   .get(
     '/event/:id',
     async ({ params: { id } }) => db.event.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        author: true,
+        matches: {
+          where: { accepted: true },
+          include: { user: true }
+        }
+      }
     })
   )
   .get(
@@ -25,6 +35,18 @@ export const queryRoute = new Elysia()
           where: { accepted: true },
           include: { user: true }
         }
+      }
+    })
+  )
+  .get(
+    '/matches/:id',
+    async ({ params: { id } }) => db.match.findMany({
+      where: {
+        user_id: id,
+        accepted: true
+      },
+      include: {
+        event: true
       }
     })
   )
