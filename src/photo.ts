@@ -23,7 +23,7 @@ export const photoRoute = new Elysia()
         Bucket,
         Key,
         Expires,
-        Body: file,
+        Body,
         ContentType: file.type,
       })
       try {
