@@ -30,7 +30,8 @@ export const photoRoute = new Elysia()
         await s3.send(command)
         return `https://${Bucket}.s3.${region}.amazonaws.com/${Key}`
       } catch (error) {
-        return error
+        console.log(error)
+        return null
       }
     },
     {
