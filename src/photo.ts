@@ -23,7 +23,7 @@ export const photoRoute = new Elysia()
         Bucket,
         Key,
         Expires,
-        Body,
+        Body: file,
         ContentType: file.type,
       })
       await s3.send(command)
