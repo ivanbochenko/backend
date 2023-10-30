@@ -26,8 +26,12 @@ export const photoRoute = new Elysia()
         Body,
         ContentType: file.type,
       })
-      await s3.send(command)
-      return `https://${Bucket}.s3.${region}.amazonaws.com/${Key}`
+      try {
+        await s3.send(command)
+        return `https://${Bucket}.s3.${region}.amazonaws.com/${Key}`
+      } catch (error) {
+        return error
+      }
     },
     {
       body: t.Object({
