@@ -36,7 +36,7 @@ export const photoRoute = new Elysia()
     },
     {
       body: t.Object({
-        file: t.File()
+        file: t.File({type: ['image']})
       })
     }
   )
