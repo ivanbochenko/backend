@@ -28,7 +28,7 @@ export const photoRoute = new Elysia()
       })
       try {
         await s3.send(command)
-        return `https://${Bucket}.s3.${region}.amazonaws.com/${Key}`
+        return { avatar: `https://${Bucket}.s3.${region}.amazonaws.com/${Key}` }
       } catch (error) {
         console.log(error)
         return null
