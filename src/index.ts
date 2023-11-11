@@ -6,6 +6,7 @@ import { loginRoute } from "./login"
 import { subscriptionRoute } from "./subscriptions";
 import { photoRoute } from "./photo"
 import { db } from "./dataBaseClient"
+import { feedRoute } from "./feed"
 
 const app = new Elysia()
   .get("/", () => "Hello 😜")
@@ -58,6 +59,7 @@ const app = new Elysia()
     }
   )
   .use(photoRoute)
+  .use(feedRoute)
   .use(queryRoute)
   .use(mutationRoute)
   .use(subscriptionRoute)

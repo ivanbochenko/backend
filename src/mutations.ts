@@ -111,11 +111,10 @@ export const mutationRoute = new Elysia()
       const reviews = await db.review.findMany({
         where: { user_id }
       })
-
-      const starsArr = reviews.map(r => r.stars)
-      const sum = starsArr.reduce((a, b) => a + b, 0)
-      const avg = Math.round(sum / starsArr.length) || 0
-      const rating = Math.round((sum / starsArr.length) / 2.5 * starsArr.length)
+      
+      const sum = reviews.reduce((a, b) => a + b.stars, 0)
+      const avg = Math.round(sum / reviews.length) || 0
+      const rating = Math.round((sum / reviews.length) / 2.5 * reviews.length)
       await db.user.update({
         where: { id: user_id },
         data: { stars: avg, rating }
